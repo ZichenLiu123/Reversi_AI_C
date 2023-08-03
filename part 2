@@ -3,326 +3,321 @@
 #include <stdbool.h>
 
 void printBoard(char board[][26], int n) {
-  char numr = 'a';
-  printf("  ");
-  while (numr < n + 'a') {
-    printf("%c", numr);
-    numr++;
-  }
-  printf("\n");
-
-  for (int row = 0; row < n; row++) {
-    printf("%c ", 'a' + row);
-    for (int col = 0; col < n; col++) {
-      printf("%c", board[row][col]);
+    char numr = 'a';
+    printf("  ");
+    while (numr < n + 'a') {
+        printf("%c", numr);
+        numr++;
     }
-
     printf("\n");
-  }
+
+    for (int row = 0; row < n; row++) {
+        printf("%c ", 'a' + row);
+        for (int col = 0; col < n; col++) {
+            printf("%c", board[row][col]);
+        }
+
+        printf("\n");
+    }
 }
+
 char oppositeColor(char currentColor) {
-  if (currentColor == 'B') {
-    currentColor = 'W';
-    return currentColor;
-  } else if (currentColor == 'W') {
-    currentColor = 'B';
-    return currentColor;
-  }
+    if (currentColor == 'B') {
+        currentColor = 'W';
+        return currentColor;
+    } else if (currentColor == 'W') {
+        currentColor = 'B';
+        return currentColor;
+    }
 }
 
 bool empty(char board[][26], char row, char col) {
-  if (board[row - 'a'][col - 'a'] == 'U') {
-    return true;
-  } else {
-    return false;
-  }
+    if (board[row - 'a'][col - 'a'] == 'U') {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool positionInBounds(int n, int row, int col) {
-  if (row < 0 || col < 0 || row >= n || col >= n) {
-    return false;
-  } else {
-    return true;
-  }
+    if (row < 0 || col < 0 || row >= n || col >= n) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 bool checkLegalInDirection(char board[][26], int n, int row, int col,
                            char colour, int deltaRow, int deltaCol) {
-  if (!empty(board, row + 'a', col + 'a')) {
-    return false;
-  }
+    if (!empty(board, row + 'a', col + 'a')) {
+        return false;
+    }
 
-  row = row + deltaRow;
-  col = col + deltaCol;
-
-  if (!positionInBounds(n, row, col)) {
-    return false;
-  }
-
-  if (board[row][col] == oppositeColor(colour)) {
     row = row + deltaRow;
     col = col + deltaCol;
 
-    while (positionInBounds(n, row, col) && board[row][col] != 'U') {
-      if (board[row][col] == colour) {
-        return true;
-      } 
-      else {
+    if (!positionInBounds(n, row, col)) {
+        return false;
+    }
+
+    if (board[row][col] == oppositeColor(colour)) {
         row = row + deltaRow;
         col = col + deltaCol;
-      }
-    }
-  }
 
-  return false;
+        while (positionInBounds(n, row, col) && board[row][col] != 'U') {
+            if (board[row][col] == colour) {
+                return true;
+            } else {
+                row = row + deltaRow;
+                col = col + deltaCol;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool validMove(char board[][26], int n, char colour, char row, char col) {
-  int rows = row - 'a';
-  int cols = col - 'a';
-  for (int i = -1; i <= 1; i++) {
-    for (int j = -1; j <= 1; j++) {
-      if (checkLegalInDirection(board, n, rows, cols, colour, i, j)) {
-        return true;
-      }
+    int rows = row - 'a';
+    int cols = col - 'a';
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (checkLegalInDirection(board, n, rows, cols, colour, i, j)) {
+                return true;
+            }
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 bool avaliableMoves(char board[][26], int n, char colour) {
-  for (char row = 'a'; row < 'a' + n; row++) {
-    for (char col = 'a'; col < 'a' + n; col++) {
-      
-      if (validMove(board, n, colour, row, col)) {
-        return true;
-      }
+    for (char row = 'a'; row < 'a' + n; row++) {
+        for (char col = 'a'; col < 'a' + n; col++) {
+
+            if (validMove(board, n, colour, row, col)) {
+                return true;
+            }
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 void flip(char board[][26], int n, char row, char col, char colour) {
-  char opp = oppositeColor(colour);
-  board[row - 'a'][col - 'a'] = colour;
-  int rows = row - 'a';
-  int cols = col - 'a';
-  int newRow = 0;
-  int newCol =0;
+    char opp = oppositeColor(colour);
+    board[row - 'a'][col - 'a'] = colour;
+    int rows = row - 'a';
+    int cols = col - 'a';
+    int newRow = 0;
+    int newCol = 0;
 
-  for (int deltaRow = -1; deltaRow <= 1; deltaRow++) {
-    for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
-      if (deltaRow == 0 && deltaCol == 0 ||
-          !positionInBounds(n, rows + deltaRow, cols + deltaCol)) {
-        continue;
-      }
+    for (int deltaRow = -1; deltaRow <= 1; deltaRow++) {
+        for (int deltaCol = -1; deltaCol <= 1; deltaCol++) {
+            if (deltaRow == 0 && deltaCol == 0 ||
+                !positionInBounds(n, rows + deltaRow, cols + deltaCol)) {
+                continue;
+            }
 
-      newRow = rows + deltaRow;
-      newCol = cols + deltaCol;
-      while (board[newRow][newCol] == opp) {
-        newRow += deltaRow;
-        newCol += deltaCol;
-        if (!positionInBounds(n, newRow, newCol)) {
-          break;
+            newRow = rows + deltaRow;
+            newCol = cols + deltaCol;
+            while (board[newRow][newCol] == opp) {
+                newRow += deltaRow;
+                newCol += deltaCol;
+                if (!positionInBounds(n, newRow, newCol)) {
+                    break;
+                }
+            }
+
+            if (positionInBounds(n, newRow, newCol) &&
+                board[newRow][newCol] == colour) {
+                while (newRow != rows + deltaRow || newCol != cols + deltaCol) {
+                    newRow -= deltaRow;
+                    newCol -= deltaCol;
+                    board[newRow][newCol] = colour;
+                }
+            }
         }
-      }
-
-      if (positionInBounds(n, newRow, newCol) &&
-          board[newRow][newCol] == colour) {
-        while (newRow != rows + deltaRow || newCol != cols + deltaCol) {
-          newRow -= deltaRow;
-          newCol -= deltaCol;
-          board[newRow][newCol] = colour;
-        }
-      }
     }
-  }
 }
 
 int countBeforeFlip(char board[][26], int n, char colour) {
-  int count = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (board[i][j] == colour) {
-        if ((i == 0 && j == 0) || (i == n - 1 && j == 0) ||
-            (i == 0 && j == n - 1) || (i == n - 1 && j == n - 1)) {
-          count += 10;
-        } else if (i == 0 || j == 0 || i == n - 1 || j == n - 1) {
-          count += 5;
-        } else if ((i <= 1 && j <= 1) || (i + 2 >= n && j < 2) ||
-                   (i < 2 && j + 2 >= n) || (i + 2 >= n && j + 2 >= n)) {
-          count -= 10;
-        } else {
-          count++;
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (board[i][j] == colour) {
+                if ((i == 0 && j == 0) || (i == n - 1 && j == 0) ||
+                    (i == 0 && j == n - 1) || (i == n - 1 && j == n - 1)) {
+                    count += 10;
+                } else if (i == 0 || j == 0 || i == n - 1 || j == n - 1) {
+                    count += 5;
+                } else if ((i <= 1 && j <= 1) || (i + 2 >= n && j < 2) ||
+                           (i < 2 && j + 2 >= n) || (i + 2 >= n && j + 2 >= n)) {
+                    count -= 10;
+                } else {
+                    count++;
+                }
+            }
         }
-      }
     }
-  }
 
-  return count;
+    return count;
 }
 
 int countAfterFlip(char board[][26], int n, char row, char col, char colour) {
-  flip(board, n, row, col, colour);
-  int count = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (board[i][j] == colour) {
-        if ((i == 0 && j == 0) || (i == n - 1 && j == 0) ||
-            (i == 0 && j == n - 1) || (i == n - 1 && j == n - 1)) {
-          count += 20;
-        } else if (i == 0 || j == 0 || i == n - 1 || j == n - 1) {
-          count += 5;
-        } else if ((i <= 1 && j <= 1) || (i + 2 >= n && j < 2) ||
-                   (i < 2 && j + 2 >= n) || (i + 2 >= n && j + 2 >= n)) {
-          count -= 10;
-        } else {
-          count++;
+    flip(board, n, row, col, colour);
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (board[i][j] == colour) {
+                if ((i == 0 && j == 0) || (i == n - 1 && j == 0) ||
+                    (i == 0 && j == n - 1) || (i == n - 1 && j == n - 1)) {
+                    count += 20;
+                } else if (i == 0 || j == 0 || i == n - 1 || j == n - 1) {
+                    count += 5;
+                } else if ((i <= 1 && j <= 1) || (i + 2 >= n && j < 2) ||
+                           (i < 2 && j + 2 >= n) || (i + 2 >= n && j + 2 >= n)) {
+                    count -= 10;
+                } else {
+                    count++;
+                }
+            }
         }
-      }
     }
-  }
 
-  return count;
+    return count;
 }
 
 int numberOfPieces(char board[][26], int n, char colour) {
-  int total = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (board[i][j] == colour) {
-        total++;
-      }
+    int total = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (board[i][j] == colour) {
+                total++;
+            }
+        }
     }
-  }
-  return total;
+    return total;
 }
 
 int calculateScorePosition(char board[][26], int n, char row, char col,
                            char colour) {
-  char boardCopy[26][26];
-  int score = 0;
+    char boardCopy[26][26];
+    int score = 0;
 
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      boardCopy[i][j] = board[i][j];
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            boardCopy[i][j] = board[i][j];
+        }
     }
-  }
 
-  score = countAfterFlip(boardCopy, n, row, col, colour) -
-          countBeforeFlip(board, n, colour) - 1;
-  return score;
+    score = countAfterFlip(boardCopy, n, row, col, colour) -
+            countBeforeFlip(board, n, colour) - 1;
+    return score;
 }
 
 int makeMove(char board[][26], int n, char turn, int* row, int* col) {
-  int score = 0;
-  for (int rows = n - 1; rows >= 0; rows--) {
-    for (int cols = n - 1; cols >= 0; cols--) {
-      if (!validMove(board, n, turn, 'a' + rows, 'a' + cols)) {
-        continue;
-      }
-      if (calculateScorePosition(board, n, 'a' + rows, 'a' + cols, turn) >=
-          score) {
-        *row = rows;
-        *col = cols;
-        score = calculateScorePosition(board, n, 'a' + rows, 'a' + cols, turn);
-      }
+    int score = 0;
+    for (int rows = n - 1; rows >= 0; rows--) {
+        for (int cols = n - 1; cols >= 0; cols--) {
+            if (!validMove(board, n, turn, 'a' + rows, 'a' + cols)) {
+                continue;
+            }
+            if (calculateScorePosition(board, n, 'a' + rows, 'a' + cols, turn) >=
+                score) {
+                *row = rows;
+                *col = cols;
+                score = calculateScorePosition(board, n, 'a' + rows, 'a' + cols, turn);
+            }
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 char winner(char board[][26], int dimension, char compColor, char humanColor) {
-  if (numberOfPieces(board, dimension, compColor) >
-      numberOfPieces(board, dimension, humanColor)) {
-    return compColor;
-  } else if (numberOfPieces(board, dimension, compColor) <
-             numberOfPieces(board, dimension, humanColor)) {
-    return humanColor;
-  } else {
-    return 'E';
-  }
+    if (numberOfPieces(board, dimension, compColor) >
+        numberOfPieces(board, dimension, humanColor)) {
+        return compColor;
+    } else if (numberOfPieces(board, dimension, compColor) <
+               numberOfPieces(board, dimension, humanColor)) {
+        return humanColor;
+    } else {
+        return 'E';
+    }
 }
 
 void results(char board[][26], int n, char compColor, char humanColor) {
-  if (winner(board, n, compColor, humanColor) == 'E') {
-    printf("Draw!\n");
-  } else {
-    printf("%c player wins.\n", winner(board, n, compColor, humanColor));
-  }
+    if (winner(board, n, compColor, humanColor) == 'E') {
+        printf("Draw!\n");
+    } else {
+        printf("%c player wins.\n", winner(board, n, compColor, humanColor));
+    }
 }
-#ifndef TESTER_P2
-// DO NOT REMOVE THE ABOVE LINE
 
 int main(void) {
-  int n;
-  char board[26][26];
-  char compColor, humanColor;
-  bool endGame = false;
-  char turn = 'B';
-  char humanRow, humanCol;
-  int URow, UCol;
-  char URows, UCols;
-  int* pointerRow = &URow;
-  int* pointerCol = &UCol;
+    int n;
+    char board[26][26];
+    char compColor, humanColor;
+    bool endGame = false;
+    char turn = 'B';
+    char humanRow, humanCol;
+    int URow, UCol;
+    char URows, UCols;
+    int* pointerRow = &URow;
+    int* pointerCol = &UCol;
 
-  printf("Enter the board dimension: ");
-  scanf("%d", &n);
+    printf("Enter the board dimension: ");
+    scanf("%d", &n);
 
-  printf("Computer plays (B/W): ");
-  scanf(" %c", &compColor);
+    printf("Computer plays (B/W): ");
+    scanf(" %c", &compColor);
 
-  humanColor = oppositeColor(compColor);
+    humanColor = oppositeColor(compColor);
 
-  for (int a = 0; a <= n - 1; a++) {
-    for (int b = 0; b <= n - 1; b++) {
-      board[a][b] = 'U';
-      board[n / 2 - 1][n / 2 - 1] = 'W';
-      board[n / 2][n / 2] = 'W';
-      board[n / 2][n / 2 - 1] = 'B';
-      board[n / 2 - 1][n / 2] = 'B';
-    }
-  }
-
-  printBoard(board, n);
-
-  while (endGame == false) {
-    if (compColor == turn) {
-      makeMove(board, n, compColor, pointerRow, pointerCol);
-      URows = URow + 'a';
-      UCols = UCol + 'a';
-      flip(board, n, URows, UCols, compColor);
-      printf("Computer places %c at %c%c.\n", compColor, URows, UCols);
-      printBoard(board, n);
+    for (int a = 0; a <= n - 1; a++) {
+        for (int b = 0; b <= n - 1; b++) {
+            board[a][b] = 'U';
+            board[n / 2 - 1][n / 2 - 1] = 'W';
+            board[n / 2][n / 2] = 'W';
+            board[n / 2][n / 2 - 1] = 'B';
+            board[n / 2 - 1][n / 2] = 'B';
+        }
     }
 
-    else {
-      printf("Enter move for colour %c (RowCol): ", turn);
-      scanf(" %c%c", &humanRow, &humanCol);
+    printBoard(board, n);
 
-      if (validMove(board, n, humanColor, humanRow, humanCol) == false) {
-        printf("Invalid move.\n");
-        printf("%c player wins.\n", oppositeColor(humanColor));
-        endGame = true;
-      } else {
-        flip(board, n, humanRow, humanCol, humanColor);
-        printBoard(board, n);
-      }
+    while (endGame == false) {
+        if (compColor == turn) {
+            makeMove(board, n, compColor, pointerRow, pointerCol);
+            URows = URow + 'a';
+            UCols = UCol + 'a';
+            flip(board, n, URows, UCols, compColor);
+            printf("Computer places %c at %c%c.\n", compColor, URows, UCols);
+            printBoard(board, n);
+        } else {
+            printf("Enter move for colour %c (RowCol): ", turn);
+            scanf(" %c%c", &humanRow, &humanCol);
+
+            if (validMove(board, n, humanColor, humanRow, humanCol) == false) {
+                printf("Invalid move.\n");
+                printf("%c player wins.\n", oppositeColor(humanColor));
+                endGame = true;
+            } else {
+                flip(board, n, humanRow, humanCol, humanColor);
+                printBoard(board, n);
+            }
+        }
+
+        if (endGame == false) {
+            if (avaliableMoves(board, n, oppositeColor(turn))) {
+                turn = oppositeColor(turn);
+            } else if (avaliableMoves(board, n, turn)) {
+                printf("%c player has no valid move.\n", oppositeColor(turn));
+                turn = turn;
+            } else {
+                endGame = true;
+                results(board, n, compColor, humanColor);
+            }
+        }
     }
-
-    if (endGame == false) {
-      if (avaliableMoves(board, n, oppositeColor(turn))) {
-        turn = oppositeColor(turn);
-      } else if (avaliableMoves(board, n, turn)) {
-        printf("%c player has no valid move.\n", oppositeColor(turn));
-        turn = turn;
-      }
-
-      else {
-        endGame = true;
-        results(board, n, compColor, humanColor);
-      }
-    }
-  }
-  return 0;
+    return 0;
 }
+
